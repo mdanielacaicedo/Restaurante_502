@@ -9,9 +9,3 @@ admin.site.register(DetalleOrden,)
 admin.site.register(Factura,)    
 
 # Register your models here.
-# Register your models here.
-# Register your models here.
-# Register your models here.
-# Register your models here.
-# Register your models here.
-# Register your models here.
