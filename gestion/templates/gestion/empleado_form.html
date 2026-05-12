@@ -1,0 +1,47 @@
+{% extends 'gestion/base.html' %}
+
+{% block title %}{% if empleado %}Editar{% else %}Crear{% endif %} Empleado - Restaurante Pasta La Vista{% endblock %}
+
+{% block content %}
+<h2>{% if empleado %}Editar Empleado{% else %}Crear Nuevo Empleado{% endif %}</h2>
+
+<div class="form-container">
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="nombre" class="required">Nombre</label>
+            <input type="text" id="nombre" name="nombre" value="{{ empleado.nombre|default:'' }}" required placeholder="Nombre del empleado">
+        </div>
+
+        <div class="form-group">
+            <label for="cargo" class="required">Cargo</label>
+            <select id="cargo" name="cargo" required>
+                <option value="">-- Selecciona un cargo --</option>
+                {% for value, label in cargos %}
+                    <option value="{{ value }}" {% if empleado.cargo == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input type="tel" id="telefono" name="telefono" value="{{ empleado.telefono|default:'' }}" placeholder="Teléfono">
+            </div>
+
+            <div class="form-group">
+                <label for="correo">Correo Electrónico</label>
+                <input type="email" id="correo" name="correo" value="{{ empleado.correo|default:'' }}" placeholder="correo@ejemplo.com">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                {% if empleado %}Actualizar{% else %}Crear{% endif %} Empleado
+            </button>
+            <a href="{% url 'lista_empleados' %}" class="btn btn-light">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

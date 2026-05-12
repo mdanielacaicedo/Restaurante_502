@@ -1,0 +1,49 @@
+{% extends 'gestion/base.html' %}
+
+{% block title %}{% if plato %}Editar{% else %}Crear{% endif %} Plato - Restaurante Pasta La Vista{% endblock %}
+
+{% block content %}
+<h2>{% if plato %}Editar Plato{% else %}Crear Nuevo Plato{% endif %}</h2>
+
+<div class="form-container">
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="nombre_plato" class="required">Nombre del Plato</label>
+            <input type="text" id="nombre_plato" name="nombre_plato" value="{{ plato.nombre_plato|default:'' }}" required placeholder="Ej: Pasta Carbonara">
+        </div>
+
+        <div class="form-group">
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" name="descripcion" placeholder="Describe el plato...">{{ plato.descripcion|default:'' }}</textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="precio" class="required">Precio</label>
+                <input type="number" id="precio" name="precio" value="{{ plato.precio|default:'' }}" required placeholder="0.00" step="0.01" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="categoria">Categoría</label>
+                <input type="text" id="categoria" name="categoria" value="{{ plato.categoria|default:'' }}" placeholder="Ej: Pasta, Postre, Bebida">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-check">
+                <input type="checkbox" name="disponible" {% if plato.disponible %}checked{% endif %}>
+                <span>Plato disponible</span>
+            </label>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                {% if plato %}Actualizar{% else %}Crear{% endif %} Plato
+            </button>
+            <a href="{% url 'lista_platos' %}" class="btn btn-light">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

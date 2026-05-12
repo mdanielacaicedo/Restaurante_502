@@ -1,0 +1,46 @@
+{% extends 'gestion/base.html' %}
+
+{% block title %}Crear Factura - Restaurante Pasta La Vista{% endblock %}
+
+{% block content %}
+<h2>Crear Nueva Factura</h2>
+
+<div class="form-container">
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="orden" class="required">Selecciona una Orden</label>
+            <select id="orden" name="orden" required>
+                <option value="">-- Selecciona una orden --</option>
+                {% for orden in ordenes %}
+                    <option value="{{ orden.id }}">
+                        Orden #{{ orden.id }} - Cliente: {{ orden.cliente.nombre }} - Total: $ {{ orden.total }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="metodo_pago" class="required">Método de Pago</label>
+            <select id="metodo_pago" name="metodo_pago" required>
+                <option value="">-- Selecciona un método --</option>
+                <option value="Efectivo">💵 Efectivo</option>
+                <option value="Tarjeta">💳 Tarjeta</option>
+                <option value="Transferencia">🏦 Transferencia</option>
+                <option value="Nequi">📱 Nequi</option>
+                <option value="Daviplata">📱 Daviplata</option>
+            </select>
+        </div>
+
+        <div style="background-color: var(--color-light); padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>Nota:</strong> Se aplicará automáticamente el IVA (19%) al subtotal.</p>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Crear Factura</button>
+            <a href="{% url 'lista_facturas' %}" class="btn btn-light">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

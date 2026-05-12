@@ -1,27 +1,50 @@
 {% extends 'gestion/base.html' %}
 
+{% block title %}Facturas - Restaurante Pasta La Vista{% endblock %}
+
 {% block content %}
-<h2>Facturas</h2>
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Orden</th>
-        <th>Fecha</th>
-        <th>Subtotal</th>
-        <th>Impuesto</th>
-        <th>Total</th>
-        <th>Método de pago</th>
-    </tr>
-    {% for factura in facturas %}
-    <tr>
-        <td>{{ factura.id }}</td>
-        <td>{{ factura.orden.id }}</td>
-        <td>{{ factura.fecha_factura }}</td>
-        <td>{{ factura.subtotal }}</td>
-        <td>{{ factura.impuesto }}</td>
-        <td>{{ factura.total_factura }}</td>
-        <td>{{ factura.metodo_pago }}</td>
-    </tr>
-    {% endfor %}
-</table>
+<h2>Gestión de Facturas</h2>
+
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'crear_factura' %}" class="btn btn-success">+ Crear Nueva Factura</a>
+</div>
+
+{% if facturas %}
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Orden</th>
+                <th>Fecha</th>
+                <th>Subtotal</th>
+                <th>Impuesto (IVA)</th>
+                <th>Total</th>
+                <th>Método de Pago</th>
+                <th style="text-align: center;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for factura in facturas %}
+            <tr>
+                <td>#{{ factura.id }}</td>
+                <td><a href="{% url 'editar_orden' factura.orden.id %}" style="color: var(--color-primary); text-decoration: none;">Orden #{{ factura.orden.id }}</a></td>
+                <td>{{ factura.fecha_factura|date:"d/m/Y H:i" }}</td>
+                <td>$ {{ factura.subtotal }}</td>
+                <td>$ {{ factura.impuesto }}</td>
+                <td><strong>$ {{ factura.total_factura }}</strong></td>
+                <td><span class="badge badge-info">{{ factura.metodo_pago }}</span></td>
+                <td class="actions">
+                    <a href="{% url 'eliminar_factura' factura.id %}" class="action-btn action-btn-delete">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="no-data">
+    <p>No hay facturas registradas aún.</p>
+</div>
+{% endif %}
 {% endblock %}

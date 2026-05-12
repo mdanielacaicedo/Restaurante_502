@@ -1,23 +1,47 @@
 {% extends 'gestion/base.html' %}
 
+{% block title %}Empleados - Restaurante Pasta La Vista{% endblock %}
+
 {% block content %}
-<h2>Empleados</h2>
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Cargo</th>
-        <th>Teléfono</th>
-        <th>Correo</th>
-    </tr>
-    {% for empleado in empleados %}
-    <tr>
-        <td>{{ empleado.id }}</td>
-        <td>{{ empleado.nombre }}</td>
-        <td>{{ empleado.cargo }}</td>
-        <td>{{ empleado.telefono }}</td>
-        <td>{{ empleado.correo }}</td>
-    </tr>
-    {% endfor %}
-</table>
+<h2>Gestión de Empleados</h2>
+
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'crear_empleado' %}" class="btn btn-success">+ Crear Nuevo Empleado</a>
+</div>
+
+{% if empleados %}
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Cargo</th>
+                <th>Teléfono</th>
+                <th>Correo</th>
+                <th style="text-align: center;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empleado in empleados %}
+            <tr>
+                <td>#{{ empleado.id }}</td>
+                <td><strong>{{ empleado.nombre }}</strong></td>
+                <td>{{ empleado.cargo }}</td>
+                <td>{{ empleado.telefono|default:"N/A" }}</td>
+                <td>{{ empleado.correo|default:"N/A" }}</td>
+                <td class="actions">
+                    <a href="{% url 'editar_empleado' empleado.id %}" class="action-btn action-btn-edit">Editar</a>
+                    <a href="{% url 'eliminar_empleado' empleado.id %}" class="action-btn action-btn-delete">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="no-data">
+    <p>No hay empleados registrados aún.</p>
+</div>
+{% endif %}
 {% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'gestion/base.html' %}
+
+{% block title %}{% if mesa %}Editar{% else %}Crear{% endif %} Mesa - Restaurante Pasta La Vista{% endblock %}
+
+{% block content %}
+<h2>{% if mesa %}Editar Mesa{% else %}Crear Nueva Mesa{% endif %}</h2>
+
+<div class="form-container">
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="numero_mesa" class="required">Número de Mesa</label>
+            <input type="number" id="numero_mesa" name="numero_mesa" value="{{ mesa.numero_mesa|default:'' }}" required placeholder="Ej: 1, 2, 3..." min="1">
+        </div>
+
+        <div class="form-group">
+            <label for="capacidad" class="required">Capacidad (personas)</label>
+            <input type="number" id="capacidad" name="capacidad" value="{{ mesa.capacidad|default:'' }}" required placeholder="Ej: 4, 6, 8..." min="1">
+        </div>
+
+        {% if mesa %}
+        <div class="form-group">
+            <label for="estado_mesa">Estado de la Mesa</label>
+            <select id="estado_mesa" name="estado_mesa">
+                {% for value, label in estados %}
+                    <option value="{{ value }}" {% if mesa.estado_mesa == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                {% if mesa %}Actualizar{% else %}Crear{% endif %} Mesa
+            </button>
+            <a href="{% url 'lista_mesas' %}" class="btn btn-light">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

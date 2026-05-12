@@ -1,0 +1,122 @@
+{% extends 'gestion/base.html' %}
+
+{% block title %}Crear Orden - Restaurante Pasta La Vista{% endblock %}
+
+{% block content %}
+<h2>Crear Nueva Orden</h2>
+
+<div class="form-container">
+    <form method="POST" id="ordenForm">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="cliente" class="required">Cliente</label>
+            <select id="cliente" name="cliente" required>
+                <option value="">-- Selecciona un cliente --</option>
+                {% for cliente in clientes %}
+                    <option value="{{ cliente.id }}">{{ cliente.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="empleado" class="required">Empleado</label>
+            <select id="empleado" name="empleado" required>
+                <option value="">-- Selecciona un empleado --</option>
+                {% for empleado in empleados %}
+                    <option value="{{ empleado.id }}">{{ empleado.nombre }} ({{ empleado.cargo }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="mesa" class="required">Mesa</label>
+            <select id="mesa" name="mesa" required>
+                <option value="">-- Selecciona una mesa --</option>
+                {% for mesa in mesas %}
+                    <option value="{{ mesa.id }}">Mesa {{ mesa.numero_mesa }} - Capacidad: {{ mesa.capacidad }} ({{ mesa.estado_mesa }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <hr style="margin: 30px 0; border: 1px solid var(--color-border);">
+
+        <h3 style="color: var(--color-primary); margin-bottom: 20px;">Platos de la Orden</h3>
+
+        <div id="platosContainer">
+            <div class="plato-item" style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; margin-bottom: 15px; align-items: end; padding: 15px; background: var(--color-light); border-radius: 6px;">
+                <div>
+                    <label for="plato_0" class="required">Selecciona un plato:</label>
+                    <select id="plato_0" name="platos[0][plato]" class="plato-select">
+                        <option value="">-- Selecciona --</option>
+                        {% for plato in platos %}
+                            <option value="{{ plato.id }}" data-precio="{{ plato.precio }}">{{ plato.nombre_plato }} - $ {{ plato.precio }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="cantidad_0" class="required">Cantidad:</label>
+                    <input type="number" id="cantidad_0" name="platos[0][cantidad]" min="1" value="1" style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px;">
+                </div>
+                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarPlato(this)">Eliminar</button>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-secondary" onclick="agregarPlato()" style="margin-bottom: 20px;">+ Agregar Plato</button>
+
+        <hr style="margin: 30px 0; border: 1px solid var(--color-border);">
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Crear Orden</button>
+            <a href="{% url 'lista_ordenes' %}" class="btn btn-light">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+let platoCount = 1;
+
+function agregarPlato() {
+    const container = document.getElementById('platosContainer');
+    const html = `
+        <div class="plato-item" style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; margin-bottom: 15px; align-items: end; padding: 15px; background: var(--color-light); border-radius: 6px;">
+            <div>
+                <label for="plato_${platoCount}" class="required">Selecciona un plato:</label>
+                <select id="plato_${platoCount}" name="platos[${platoCount}][plato]" class="plato-select">
+                    <option value="">-- Selecciona --</option>
+                    {% for plato in platos %}
+                        <option value="{{ plato.id }}" data-precio="{{ plato.precio }}">{{ plato.nombre_plato }} - $ {{ plato.precio }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="cantidad_${platoCount}" class="required">Cantidad:</label>
+                <input type="number" id="cantidad_${platoCount}" name="platos[${platoCount}][cantidad]" min="1" value="1" style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px;">
+            </div>
+            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarPlato(this)">Eliminar</button>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+    platoCount++;
+}
+
+function eliminarPlato(button) {
+    button.closest('.plato-item').remove();
+}
+</script>
+
+<style>
+    #platosContainer .plato-item select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid var(--color-border);
+        border-radius: 4px;
+    }
+
+    #platosContainer .plato-item select:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+    }
+</style>
+{% endblock %}
