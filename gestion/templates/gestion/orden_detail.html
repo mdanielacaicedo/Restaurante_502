@@ -1,0 +1,95 @@
+{% extends 'gestion/base.html' %}
+
+{% block title %}Orden #{{ orden.id }} - Restaurante Pasta La Vista{% endblock %}
+
+{% block content %}
+<h2>Orden #{{ orden.id }}</h2>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+    <div style="background-color: var(--color-light); padding: 20px; border-radius: 8px;">
+        <h3>Información de la Orden</h3>
+        <p><strong>Cliente:</strong> {{ orden.cliente.nombre }}</p>
+        <p><strong>Empleado:</strong> {{ orden.empleado.nombre }}</p>
+        <p><strong>Mesa:</strong> {{ orden.mesa.numero_mesa }}</p>
+        <p><strong>Fecha:</strong> {{ orden.fecha_hora|date:"d/m/Y H:i" }}</p>
+    </div>
+
+    <div style="background-color: var(--color-light); padding: 20px; border-radius: 8px;">
+        <h3>Estado y Total</h3>
+        <form method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+            {% csrf_token %}
+            <div>
+                <label for="estado_orden">Estado:</label>
+                <select id="estado_orden" name="estado_orden" style="width: 100%; padding: 8px;">
+                    {% for value, label in estados %}
+                        <option value="{{ value }}" {% if orden.estado_orden == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Actualizar Estado</button>
+        </form>
+        <p style="margin-top: 15px;"><strong>Total:</strong> <span style="font-size: 1.5rem; color: var(--color-primary);">$ {{ orden.total }}</span></p>
+    </div>
+</div>
+
+<h3>Detalles de la Orden</h3>
+
+{% if detalles %}
+<div class="table-container" style="margin-bottom: 20px;">
+    <table>
+        <thead>
+            <tr>
+                <th>Plato</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+                <th style="text-align: center;">Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in detalles %}
+            <tr>
+                <td>{{ detalle.plato.nombre_plato }}</td>
+                <td>{{ detalle.cantidad }}</td>
+                <td>$ {{ detalle.precio_unitario }}</td>
+                <td><strong>$ {{ detalle.subtotal }}</strong></td>
+                <td class="actions">
+                    <a href="{% url 'eliminar_detalle_orden' detalle.id %}" class="action-btn action-btn-delete">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="no-data">
+    <p>No hay platos en esta orden aún.</p>
+</div>
+{% endif %}
+
+<div style="margin-top: 30px; padding: 20px; background-color: var(--color-light); border-radius: 8px;">
+    <h3>Agregar Plato a la Orden</h3>
+    <form method="POST" action="{% url 'agregar_detalle_orden' orden.id %}" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end;">
+        {% csrf_token %}
+        <div>
+            <label for="plato">Selecciona un plato:</label>
+            <select id="plato" name="plato" required style="width: 100%; padding: 8px;">
+                <option value="">-- Selecciona --</option>
+                {% for plato in platos %}
+                    <option value="{{ plato.id }}">{{ plato.nombre_plato }} - $ {{ plato.precio }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="cantidad">Cantidad:</label>
+            <input type="number" id="cantidad" name="cantidad" value="1" required min="1" style="width: 100%; padding: 8px;">
+        </div>
+        <button type="submit" class="btn btn-success">Agregar</button>
+    </form>
+</div>
+
+<div style="margin-top: 20px; display: flex; gap: 10px;">
+    <a href="{% url 'lista_ordenes' %}" class="btn btn-light">Volver a Órdenes</a>
+    <a href="{% url 'crear_factura' %}" class="btn btn-success">Crear Factura</a>
+</div>
+{% endblock %}

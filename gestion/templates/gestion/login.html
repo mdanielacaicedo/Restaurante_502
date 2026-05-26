@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Restaurante Pasta La Vista</title>
+    <link rel="stylesheet" href="{% static 'gestion/style.css' %}">
+    <link rel="stylesheet" href="{% static 'gestion/forms.css' %}">
+    <link rel="stylesheet" href="{% static 'gestion/auth.css' %}">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="logo">🍝</div>
+            <h1>Pasta La Vista</h1>
+            <p>Sistema de Gestión de Restaurante</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="auth-alert auth-alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="showForm('login')">Iniciar Sesión</button>
+            <button class="auth-tab" onclick="showForm('register')">Registrarse</button>
+        </div>
+
+        <!-- Formulario de Login -->
+        <form id="login" class="auth-form active" method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Nombre de usuario</label>
+                <input type="text" id="username" name="username" required placeholder="Tu nombre de usuario">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" required placeholder="Tu contraseña">
+            </div>
+
+            <div class="auth-options">
+                <label class="form-check-login">
+                    <input type="checkbox" name="remember">
+                Recuérdame
+                </label>
+                
+            </div>
+
+            <button type="submit" class="auth-submit">Iniciar Sesión</button>
+        </form>
+
+        <!-- Formulario de Registro -->
+        <form id="register" class="auth-form" method="POST" action="{% url 'register' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="reg_username">Nombre de usuario</label>
+                <input type="text" id="reg_username" name="username" required placeholder="Elige un nombre de usuario">
+            </div>
+
+            <div class="form-group">
+                <label for="reg_email">Correo electrónico</label>
+                <input type="email" id="reg_email" name="email" required placeholder="tu@correo.com">
+            </div>
+
+            <div class="form-group">
+                <label for="reg_password1">Contraseña</label>
+                <input type="password" id="reg_password1" name="password1" required placeholder="Elige una contraseña fuerte">
+            </div>
+
+            <div class="form-group">
+                <label for="reg_password2">Confirmar contraseña</label>
+                <input type="password" id="reg_password2" name="password2" required placeholder="Confirma tu contraseña">
+            </div>
+
+            <button type="submit" class="auth-submit">Registrarse</button>
+        </form>
+
+        <div class="auth-toggle">
+            ¿Necesitas ayuda? Contacta al administrador del sistema
+        </div>
+    </div>
+
+    <script>
+        function showForm(formId) {
+            // Ocultar todos los formularios
+            document.querySelectorAll('.auth-form').forEach(form => {
+                form.classList.remove('active');
+            });
+
+            // Desactivar todos los tabs
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Mostrar el formulario seleccionado
+            document.getElementById(formId).classList.add('active');
+
+            // Activar el tab correspondiente
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

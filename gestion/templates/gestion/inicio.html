@@ -1,35 +1,59 @@
 {% extends 'gestion/base.html' %}
 
+{% block title %}Panel de Control - Restaurante Pasta La Vista{% endblock %}
+
 {% block content %}
-<h2>Panel principal</h2>
+<h2>Panel Principal</h2>
 
-<div class="card">
-    <h3>Clientes</h3>
-    <p>{{ total_clientes }}</p>
+<div style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%); border-radius: 8px; color: white;">
+    <h3 style="color: white; margin-top: 0;">🎯 Acciones Rápidas</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+        <a href="{% url 'crear_cliente' %}" class="btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 2px solid white; font-weight: 600;">+ Nuevo Cliente</a>
+        <a href="{% url 'crear_empleado' %}" class="btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 2px solid white; font-weight: 600;">+ Nuevo Empleado</a>
+        <a href="{% url 'crear_mesa' %}" class="btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 2px solid white; font-weight: 600;">+ Nueva Mesa</a>
+        <a href="{% url 'crear_plato' %}" class="btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 2px solid white; font-weight: 600;">+ Nuevo Plato</a>
+        <a href="{% url 'crear_orden' %}" class="btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 2px solid white; font-weight: 600;">+ Nueva Orden</a>
+        <a href="{% url 'crear_factura' %}" class="btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 2px solid white; font-weight: 600;">+ Nueva Factura</a>
+    </div>
 </div>
 
-<div class="card">
-    <h3>Empleados</h3>
-    <p>{{ total_empleados }}</p>
-</div>
+<p style="color: var(--color-text-light); margin-bottom: 30px;">Resumen general del sistema de gestión</p>
 
-<div class="card">
-    <h3>Mesas</h3>
-    <p>{{ total_mesas }}</p>
-</div>
+<div class="cards-grid">
+    <div class="card" onclick="location.href='/clientes/';" style="cursor: pointer;">
+        <h3>👥 Clientes</h3>
+        <p>{{ total_clientes }}</p>
+        <small>Clientes registrados</small>
+    </div>
 
-<div class="card">
-    <h3>Platos</h3>
-    <p>{{ total_platos }}</p>
-</div>
+    <div class="card" onclick="location.href='/empleados/';" style="cursor: pointer;">
+        <h3>👔 Empleados</h3>
+        <p>{{ total_empleados }}</p>
+        <small>Personal del restaurante</small>
+    </div>
 
-<div class="card">
-    <h3>Órdenes</h3>
-    <p>{{ total_ordenes }}</p>
-</div>
+    <div class="card" onclick="location.href='/mesas/';" style="cursor: pointer;">
+        <h3>🪑 Mesas</h3>
+        <p>{{ total_mesas }}</p>
+        <small>Mesas disponibles</small>
+    </div>
 
-<div class="card">
-    <h3>Facturas</h3>
-    <p>{{ total_facturas }}</p>
+    <div class="card" onclick="location.href='/platos/';" style="cursor: pointer;">
+        <h3>🍽️ Platos</h3>
+        <p>{{ total_platos }}</p>
+        <small>Items en el menú</small>
+    </div>
+
+    <div class="card" onclick="location.href='/ordenes/';" style="cursor: pointer;">
+        <h3>📋 Órdenes</h3>
+        <p>{{ total_ordenes }}</p>
+        <small>Órdenes generadas</small>
+    </div>
+
+    <div class="card" onclick="location.href='/facturas/';" style="cursor: pointer;">
+        <h3>💰 Facturas</h3>
+        <p>{{ total_facturas }}</p>
+        <small>Facturas emitidas</small>
+    </div>
 </div>
 {% endblock %}
