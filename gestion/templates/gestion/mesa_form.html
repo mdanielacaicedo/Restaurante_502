@@ -3,39 +3,108 @@
 {% block title %}{% if mesa %}Editar{% else %}Crear{% endif %} Mesa - Restaurante Pasta La Vista{% endblock %}
 
 {% block content %}
-<h2>{% if mesa %}Editar Mesa{% else %}Crear Nueva Mesa{% endif %}</h2>
+<div class="row mb-4">
+    <div class="col">
+        <h2>
+            <i class="bi bi-table"></i>
+            {% if mesa %}Editar Mesa{% else %}Nueva Mesa{% endif %}
+        </h2>
+    </div>
+</div>
 
-<div class="form-container">
-    <form method="POST">
-        {% csrf_token %}
-        
-        <div class="form-group">
-            <label for="numero_mesa" class="required">Número de Mesa</label>
-            <input type="number" id="numero_mesa" name="numero_mesa" value="{{ mesa.numero_mesa|default:'' }}" required placeholder="Ej: 1, 2, 3..." min="1">
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="numero_mesa" class="form-label">
+                                    <i class="bi bi-table"></i> Número <span class="text-danger">*</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="numero_mesa" 
+                                    name="numero_mesa" 
+                                    class="form-control" 
+                                    value="{{ mesa.numero_mesa|default:'' }}" 
+                                    placeholder="Ej: 1, 2, 3..."
+                                    min="1"
+                                    max="100"
+                                    title="Número de mesa entre 1 y 100"
+                                    required
+                                >
+                                <small class="text-muted">Entre 1 y 100</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="capacidad" class="form-label">
+                                    <i class="bi bi-people"></i> Capacidad <span class="text-danger">*</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="capacidad" 
+                                    name="capacidad" 
+                                    class="form-control" 
+                                    value="{{ mesa.capacidad|default:'' }}" 
+                                    placeholder="Ej: 4, 6, 8..."
+                                    min="1"
+                                    max="20"
+                                    title="Capacidad entre 1 y 20 personas"
+                                    required
+                                >
+                                <small class="text-muted">Entre 1 y 20 personas</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if mesa %}
+                    <div class="mb-3">
+                        <label for="estado_mesa" class="form-label">
+                            <i class="bi bi-check-circle"></i> Estado
+                        </label>
+                        <select id="estado_mesa" name="estado_mesa" class="form-select">
+                            {% for value, label in estados %}
+                                <option value="{{ value }}" {% if mesa.estado_mesa == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i>
+                            {% if mesa %}Actualizar{% else %}Crear{% endif %}
+                        </button>
+                        <a href="{% url 'lista_mesas' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label for="capacidad" class="required">Capacidad (personas)</label>
-            <input type="number" id="capacidad" name="capacidad" value="{{ mesa.capacidad|default:'' }}" required placeholder="Ej: 4, 6, 8..." min="1">
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h6 class="card-title mb-3">
+                    <i class="bi bi-info-circle"></i> Información
+                </h6>
+                <ul class="list-unstyled small text-muted">
+                    <li><i class="bi bi-check"></i> Número y capacidad obligatorios</li>
+                    <li><i class="bi bi-check"></i> Máximo de huéspedes por mesa</li>
+                    <li><i class="bi bi-check"></i> El estado se puede cambiar después</li>
+                </ul>
+            </div>
         </div>
-
-        {% if mesa %}
-        <div class="form-group">
-            <label for="estado_mesa">Estado de la Mesa</label>
-            <select id="estado_mesa" name="estado_mesa">
-                {% for value, label in estados %}
-                    <option value="{{ value }}" {% if mesa.estado_mesa == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        {% endif %}
-
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">
-                {% if mesa %}Actualizar{% else %}Crear{% endif %} Mesa
-            </button>
-            <a href="{% url 'lista_mesas' %}" class="btn btn-light">Cancelar</a>
-        </div>
-    </form>
+    </div>
 </div>
 {% endblock %}

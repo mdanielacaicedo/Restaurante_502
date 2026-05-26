@@ -1,50 +1,166 @@
 {% extends 'gestion/base.html' %}
+{% load custom_filters %}
 
 {% block title %}Facturas - Restaurante Pasta La Vista{% endblock %}
 
 {% block content %}
-<h2>Gestión de Facturas</h2>
-
-<div style="margin-bottom: 20px;">
-    <a href="{% url 'crear_factura' %}" class="btn btn-success">+ Crear Nueva Factura</a>
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2><i class="bi bi-file-earmark-text"></i> Facturas</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        {% if rol == 'administrador' or rol == 'cajero' %}
+            <a href="{% url 'crear_factura' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nueva</a>
+        {% else %}
+            <span class="text-muted small">Solo administradores y cajeros pueden crear facturas</span>
+        {% endif %}
+    </div>
 </div>
 
-{% if facturas %}
-<div class="table-container">
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Orden</th>
-                <th>Fecha</th>
-                <th>Subtotal</th>
-                <th>Impuesto (IVA)</th>
-                <th>Total</th>
-                <th>Método de Pago</th>
-                <th style="text-align: center;">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for factura in facturas %}
-            <tr>
-                <td>#{{ factura.id }}</td>
-                <td><a href="{% url 'editar_orden' factura.orden.id %}" style="color: var(--color-primary); text-decoration: none;">Orden #{{ factura.orden.id }}</a></td>
-                <td>{{ factura.fecha_factura|date:"d/m/Y H:i" }}</td>
-                <td>$ {{ factura.subtotal }}</td>
-                <td>$ {{ factura.impuesto }}</td>
-                <td><strong>$ {{ factura.total_factura }}</strong></td>
-                <td><span class="badge badge-info">{{ factura.metodo_pago }}</span></td>
-                <td class="actions">
-                    <a href="{% url 'eliminar_factura' factura.id %}" class="action-btn action-btn-delete">Eliminar</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<!-- Indicadores de estado -->
+<div class="row mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div style="width: 50px; height: 50px; background: rgba(39, 174, 96, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-check-circle" style="font-size: 1.5rem; color: #27ae60;"></i>
+                    </div>
+                    <div class="ms-3">
+                        <small class="text-muted">Facturas Activas</small>
+                        <h4 class="mb-0">{{ total_activas }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div style="width: 50px; height: 50px; background: rgba(231, 76, 60, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-x-circle" style="font-size: 1.5rem; color: #e74c3c;"></i>
+                    </div>
+                    <div class="ms-3">
+                        <small class="text-muted">Facturas Anuladas</small>
+                        <h4 class="mb-0">{{ total_anuladas }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 col-lg-6">
+        <div class="btn-group w-100" role="group">
+            <a href="{% url 'lista_facturas' %}" class="btn btn-outline-primary {% if estado_filtro == 'activas' %}active{% endif %}">
+                <i class="bi bi-filter"></i> Solo Activas
+            </a>
+            <a href="{% url 'lista_facturas' %}?ver_todas=1" class="btn btn-outline-secondary {% if estado_filtro == 'todas' %}active{% endif %}">
+                <i class="bi bi-list"></i> Ver Todas
+            </a>
+        </div>
+    </div>
 </div>
-{% else %}
-<div class="no-data">
-    <p>No hay facturas registradas aún.</p>
+
+<!-- Mensajes -->
+{% if messages %}
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+    {% for message in messages %}
+        <i class="bi bi-info-circle"></i> {{ message }}
+    {% endfor %}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>
 {% endif %}
+
+<!-- Tabla de facturas -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="bg-primary text-white">
+                <tr>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;"><i class="bi bi-hash"></i> ID</th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;"><i class="bi bi-receipt"></i> Orden</th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;"><i class="bi bi-person"></i> Cliente</th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;"><i class="bi bi-calendar"></i> Fecha</th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;"><i class="bi bi-cash"></i> Subtotal</th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;"><i class="bi bi-percent"></i> IVA</th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;"><i class="bi bi-cash"></i> Total</th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;"><i class="bi bi-credit-card"></i> Pago</th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;">Estado</th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;" class="text-end">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for factura in facturas %}
+                <tr {% if factura.estado == 'anulada' %}style="background-color: #fff5f5;"{% endif %}>
+                    <td>
+                        <span class="badge bg-light text-dark">#{{ factura.id }}</span>
+                    </td>
+                    <td>
+                        <a href="{% url 'editar_orden' factura.orden.id %}" class="text-decoration-none">
+                            <i class="bi bi-receipt"></i> #{{ factura.orden.id }}
+                        </a>
+                    </td>
+                    <td>
+                        <strong>{{ factura.orden.cliente.nombre }}</strong>
+                    </td>
+                    <td>
+                        <small class="text-muted">{{ factura.fecha_factura|date:"d/m/Y H:i" }}</small>
+                    </td>
+                    <td>{{ factura.subtotal|precio_simple }}</td>
+                    <td>{{ factura.impuesto|precio_simple }}</td>
+                    <td>
+                        <strong class="text-success">{{ factura.total_factura|precio_simple }}</strong>
+                    </td>
+                    <td>
+                        <span class="badge bg-info"><i class="bi bi-credit-card"></i> {{ factura.metodo_pago }}</span>
+                    </td>
+                    <td>
+                        {% if factura.estado == 'activa' %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Activa</span>
+                        {% else %}
+                            <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Anulada</span>
+                            {% if factura.fecha_anulacion %}
+                                <br><small class="text-muted">{{ factura.fecha_anulacion|date:"d/m/Y" }}</small>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if factura.estado == 'activa' %}
+                            {% if rol == 'administrador' or rol == 'cajero' %}
+                                <a href="{% url 'eliminar_factura' factura.id %}" class="btn btn-sm btn-outline-danger" title="Anular">
+                                    <i class="bi bi-x-circle"></i>
+                                </a>
+                            {% else %}
+                                <span class="badge bg-secondary">—</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge bg-secondary">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if not facturas %}
+    <div class="text-center py-5">
+        <div style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;">
+            <i class="bi bi-file-earmark-text"></i>
+        </div>
+        <p class="text-muted mb-3">
+            {% if estado_filtro == 'activas' %}
+                No hay facturas activas
+            {% else %}
+                No hay facturas registradas
+            {% endif %}
+        </p>
+        {% if rol == 'administrador' or rol == 'cajero' %}
+            <a href="{% url 'crear_factura' %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg"></i> Crear primera factura
+            </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

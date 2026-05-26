@@ -3,7 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Cliente, Empleado, Mesa, Plato, Orden, DetalleOrden, Factura
+from .models import Cliente, Empleado, Mesa, Plato, Orden, DetalleOrden, Factura, Role, UserRole
+from .utils import requerir_rol, obtener_rol_usuario, usuario_puede, obtener_permisos_usuario, agregar_rol_contexto
 from decimal import Decimal
 
 # Vistas Para Autenticación
@@ -71,6 +72,9 @@ def logout_view(request):
 @login_required
 def inicio(request):
     """Panel principal del dashboard"""
+    rol = obtener_rol_usuario(request.user)
+    permisos = obtener_permisos_usuario(request.user)
+    
     context = {
         'total_clientes': Cliente.objects.count(),
         'total_empleados': Empleado.objects.count(),
@@ -78,22 +82,24 @@ def inicio(request):
         'total_platos': Plato.objects.count(),
         'total_ordenes': Orden.objects.count(),
         'total_facturas': Factura.objects.count(),
+        'rol': rol,
+        'permisos': permisos,
     }
     return render(request, 'gestion/inicio.html', context)
 
 
-
+# CRUD para cada modelo: Cliente, Empleado, Mesa, Plato, Orden, Factura
 # CRUD Cliente
 
-
-@login_required
+@requerir_rol('administrador', 'mesero', 'cajero')
 def Lista_clientes(request):
     """Listar todos los clientes"""
     clientes = Cliente.objects.all().order_by('-id')
-    return render(request, 'gestion/clientes.html', {'clientes': clientes})
+    context = agregar_rol_contexto(request, {'clientes': clientes})
+    return render(request, 'gestion/clientes.html', context)
 
 
-@login_required
+@requerir_rol('administrador')
 def crear_cliente(request):
     """Crear nuevo cliente"""
     if request.method == 'POST':
@@ -115,7 +121,7 @@ def crear_cliente(request):
     return render(request, 'gestion/cliente_form.html')
 
 
-@login_required
+@requerir_rol('administrador')
 def editar_cliente(request, id):
     """Editar cliente"""
     cliente = get_object_or_404(Cliente, id=id)
@@ -135,7 +141,7 @@ def editar_cliente(request, id):
     return render(request, 'gestion/cliente_form.html', {'cliente': cliente})
 
 
-@login_required
+@requerir_rol('administrador')
 def eliminar_cliente(request, id):
     """Eliminar cliente"""
     cliente = get_object_or_404(Cliente, id=id)
@@ -152,14 +158,15 @@ def eliminar_cliente(request, id):
 # CRUD Empleado
 
 
-@login_required
+@requerir_rol('administrador')
 def Lista_empleados(request):
     """Listar todos los empleados"""
     empleados = Empleado.objects.all().order_by('-id')
-    return render(request, 'gestion/empleados.html', {'empleados': empleados})
+    context = agregar_rol_contexto(request, {'empleados': empleados})
+    return render(request, 'gestion/empleados.html', context)
 
 
-@login_required
+@requerir_rol('administrador')
 def crear_empleado(request):
     """Crear nuevo empleado"""
     if request.method == 'POST':
@@ -184,7 +191,7 @@ def crear_empleado(request):
     return render(request, 'gestion/empleado_form.html', {'cargos': cargos})
 
 
-@login_required
+@requerir_rol('administrador')
 def editar_empleado(request, id):
     """Editar empleado"""
     empleado = get_object_or_404(Empleado, id=id)
@@ -206,7 +213,7 @@ def editar_empleado(request, id):
     return render(request, 'gestion/empleado_form.html', {'empleado': empleado, 'cargos': cargos})
 
 
-@login_required
+@requerir_rol('administrador')
 def eliminar_empleado(request, id):
     """Eliminar empleado"""
     empleado = get_object_or_404(Empleado, id=id)
@@ -223,14 +230,15 @@ def eliminar_empleado(request, id):
 # CRUD Mesa
 
 
-@login_required
+@requerir_rol('administrador', 'mesero', 'cajero')
 def Lista_mesa(request):
     """Listar todas las mesas"""
     mesas = Mesa.objects.all().order_by('numero_mesa')
-    return render(request, 'gestion/mesas.html', {'mesas': mesas})
+    context = agregar_rol_contexto(request, {'mesas': mesas})
+    return render(request, 'gestion/mesas.html', context)
 
 
-@login_required
+@requerir_rol('administrador')
 def crear_mesa(request):
     """Crear nueva mesa"""
     if request.method == 'POST':
@@ -252,7 +260,7 @@ def crear_mesa(request):
     return render(request, 'gestion/mesa_form.html')
 
 
-@login_required
+@requerir_rol('administrador')
 def editar_mesa(request, id):
     """Editar mesa"""
     mesa = get_object_or_404(Mesa, id=id)
@@ -277,7 +285,7 @@ def editar_mesa(request, id):
     return render(request, 'gestion/mesa_form.html', {'mesa': mesa, 'estados': estados})
 
 
-@login_required
+@requerir_rol('administrador')
 def eliminar_mesa(request, id):
     """Eliminar mesa"""
     mesa = get_object_or_404(Mesa, id=id)
@@ -292,14 +300,15 @@ def eliminar_mesa(request, id):
 
 # CRUD Plato
 
-@login_required
+@requerir_rol('administrador', 'mesero', 'cajero')
 def Lista_platos(request):
     """Listar todos los platos"""
     platos = Plato.objects.all().order_by('-id')
-    return render(request, 'gestion/platos.html', {'platos': platos})
+    context = agregar_rol_contexto(request, {'platos': platos})
+    return render(request, 'gestion/platos.html', context)
 
 
-@login_required
+@requerir_rol('administrador')
 def crear_plato(request):
     """Crear nuevo plato"""
     if request.method == 'POST':
@@ -325,7 +334,7 @@ def crear_plato(request):
     return render(request, 'gestion/plato_form.html')
 
 
-@login_required
+@requerir_rol('administrador')
 def editar_plato(request, id):
     """Editar plato"""
     plato = get_object_or_404(Plato, id=id)
@@ -347,7 +356,7 @@ def editar_plato(request, id):
     return render(request, 'gestion/plato_form.html', {'plato': plato})
 
 
-@login_required
+@requerir_rol('administrador')
 def eliminar_plato(request, id):
     """Eliminar plato"""
     plato = get_object_or_404(Plato, id=id)
@@ -364,14 +373,15 @@ def eliminar_plato(request, id):
 # CRUD Orden
 
 
-@login_required
+@requerir_rol('administrador', 'mesero', 'cajero')
 def Lista_ordenes(request):
     """Listar todas las órdenes"""
     ordenes = Orden.objects.all().order_by('-fecha_hora')
-    return render(request, 'gestion/ordenes.html', {'ordenes': ordenes})
+    context = agregar_rol_contexto(request, {'ordenes': ordenes})
+    return render(request, 'gestion/ordenes.html', context)
 
 
-@login_required
+@requerir_rol('administrador', 'mesero')
 def crear_orden(request):
     """Crear nueva orden con platos"""
     if request.method == 'POST':
@@ -424,7 +434,7 @@ def crear_orden(request):
     return render(request, 'gestion/orden_form.html', context)
 
 
-@login_required
+@requerir_rol('administrador', 'mesero')
 def editar_orden(request, id):
     """Editar orden y sus detalles"""
     orden = get_object_or_404(Orden, id=id)
@@ -446,7 +456,7 @@ def editar_orden(request, id):
     return render(request, 'gestion/orden_detail.html', context)
 
 
-@login_required
+@requerir_rol('administrador', 'mesero')
 def agregar_detalle_orden(request, orden_id):
     """Agregar detalle a una orden"""
     orden = get_object_or_404(Orden, id=orden_id)
@@ -469,7 +479,7 @@ def agregar_detalle_orden(request, orden_id):
     return redirect('editar_orden', id=orden_id)
 
 
-@login_required
+@requerir_rol('administrador', 'mesero')
 def eliminar_detalle_orden(request, id):
     """Eliminar detalle de una orden"""
     detalle = get_object_or_404(DetalleOrden, id=id)
@@ -486,7 +496,7 @@ def eliminar_detalle_orden(request, id):
     return redirect('editar_orden', id=orden_id)
 
 
-@login_required
+@requerir_rol('administrador')
 def eliminar_orden(request, id):
     """Eliminar orden"""
     orden = get_object_or_404(Orden, id=id)
@@ -503,14 +513,28 @@ def eliminar_orden(request, id):
 # CRUD Factura
 
 
-@login_required
+@requerir_rol('administrador', 'cajero')
 def Lista_facturas(request):
-    """Listar todas las facturas"""
-    facturas = Factura.objects.all().order_by('-fecha_factura')
-    return render(request, 'gestion/facturas.html', {'facturas': facturas})
+    # Listar todas las facturas con filtro opcional
+    ver_todas = request.GET.get('ver_todas', False)
+    
+    if ver_todas:
+        facturas = Factura.objects.all().order_by('-fecha_factura')
+        estado_filtro = 'todas'
+    else:
+        facturas = Factura.objects.filter(estado='activa').order_by('-fecha_factura')
+        estado_filtro = 'activas'
+    
+    context = agregar_rol_contexto(request, {
+        'facturas': facturas,
+        'estado_filtro': estado_filtro,
+        'total_activas': Factura.objects.filter(estado='activa').count(),
+        'total_anuladas': Factura.objects.filter(estado='anulada').count(),
+    })
+    return render(request, 'gestion/facturas.html', context)
 
 
-@login_required
+@requerir_rol('administrador', 'cajero')
 def crear_factura(request):
     """Crear nueva factura"""
     ordenes_sin_factura = Orden.objects.exclude(factura__isnull=False)
@@ -553,19 +577,70 @@ def crear_factura(request):
     return render(request, 'gestion/factura_form.html', context)
 
 
-@login_required
+@requerir_rol('administrador', 'cajero')
 def eliminar_factura(request, id):
-    """Eliminar factura"""
+    """Anular factura """
     factura = get_object_or_404(Factura, id=id)
     
+    if not factura.puede_ser_anulada():
+        messages.error(request, 'Esta factura no puede ser anulada porque ya está anulada')
+        return redirect('lista_facturas')
+    
     if request.method == 'POST':
-        orden = factura.orden
-        factura.delete()
-        orden.estado_orden = 'Entregada'
-        orden.save()
-        messages.success(request, 'Factura eliminada exitosamente')
+        razon_anulacion = request.POST.get('razon_anulacion', 'No especificada')
+        factura.anular(razon=razon_anulacion)
+        factura.orden.estado_orden = 'Entregada'
+        factura.orden.save()
+        messages.success(request, f'Factura #{factura.id} anulada exitosamente. Razón: {razon_anulacion}')
         return redirect('lista_facturas')
     
     return render(request, 'gestion/factura_confirm_delete.html', {'factura': factura})
+
+
+@requerir_rol('administrador', 'cajero')
+def facturar_orden(request, orden_id):
+
+    orden = get_object_or_404(Orden, id=orden_id)
+    
+    if hasattr(orden, 'factura'):
+        messages.error(request, 'Esta orden ya tiene factura')
+        return redirect('editar_orden', id=orden_id)
+    
+    if not orden.detalles.exists():
+        messages.error(request, 'La orden debe tener al menos un detalle')
+        return redirect('editar_orden', id=orden_id)
+    
+    if request.method == 'POST':
+        metodo_pago = request.POST.get('metodo_pago')
+        impuesto_porcentaje = Decimal('0.19')  # 19% de IVA (Colombia)
+        
+        if not metodo_pago:
+            messages.error(request, 'Debe seleccionar un método de pago')
+        else:
+            subtotal = orden.total
+            impuesto = subtotal * impuesto_porcentaje
+            total_factura = subtotal + impuesto
+            
+            factura = Factura.objects.create(
+                orden=orden,
+                subtotal=subtotal,
+                impuesto=impuesto,
+                total_factura=total_factura,
+                metodo_pago=metodo_pago,
+                estado='activa'
+            )
+            
+            orden.estado_orden = 'Facturada'
+            orden.save()
+            
+            messages.success(request, f'Factura #{factura.id} creada exitosamente')
+            return redirect('editar_orden', id=orden_id)
+    
+    metodos_pago = Factura.METODOS_PAGO
+    context = {
+        'orden': orden,
+        'metodos_pago': metodos_pago,
+    }
+    return render(request, 'gestion/facturar_orden.html', context)
 
 

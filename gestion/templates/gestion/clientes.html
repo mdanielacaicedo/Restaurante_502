@@ -3,43 +3,86 @@
 {% block title %}Clientes - Restaurante Pasta La Vista{% endblock %}
 
 {% block content %}
-<h2>Gestión de Clientes</h2>
-
-<div style="margin-bottom: 20px;">
-    <a href="{% url 'crear_cliente' %}" class="btn btn-success">+ Crear Nuevo Cliente</a>
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="mb-0">
+            <i class="bi bi-people"></i> Gestión de Clientes
+        </h2>
+    </div>
+    <div class="col-md-4 text-end">
+        {% if rol == 'administrador' %}
+            <a href="{% url 'crear_cliente' %}" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> Nuevo Cliente
+            </a>
+        {% else %}
+            <div class="alert alert-info alert-sm mb-0" role="alert" style="padding: 0.5rem; font-size: 0.9rem;">
+                <i class="bi bi-info-circle"></i> Solo administradores pueden crear clientes
+            </div>
+        {% endif %}
+    </div>
 </div>
 
 {% if clientes %}
-<div class="table-container">
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Teléfono</th>
-                <th>Correo</th>
-                <th style="text-align: center;">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cliente in clientes %}
-            <tr>
-                <td>#{{ cliente.id }}</td>
-                <td><strong>{{ cliente.nombre }}</strong></td>
-                <td>{{ cliente.telefono|default:"N/A" }}</td>
-                <td>{{ cliente.correo|default:"N/A" }}</td>
-                <td class="actions">
-                    <a href="{% url 'editar_cliente' cliente.id %}" class="action-btn action-btn-edit">Editar</a>
-                    <a href="{% url 'eliminar_cliente' cliente.id %}" class="action-btn action-btn-delete">Eliminar</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th style="width: 8%;">ID</th>
+                    <th style="width: 35%;">Nombre</th>
+                    <th style="width: 25%;">Teléfono</th>
+                    <th style="width: 22%;">Correo</th>
+                    <th style="width: 10%; text-align: center;">{% if rol == 'administrador' %}Acciones{% else %}Ver{% endif %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td><span class="badge bg-primary">#{{ cliente.id }}</span></td>
+                    <td><strong>{{ cliente.nombre }}</strong></td>
+                    <td>
+                        {% if cliente.telefono %}
+                            <i class="bi bi-telephone"></i> {{ cliente.telefono }}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if cliente.correo %}
+                            <a href="mailto:{{ cliente.correo }}" class="text-decoration-none">{{ cliente.correo }}</a>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if rol == 'administrador' %}
+                            <a href="{% url 'editar_cliente' cliente.id %}" class="btn btn-sm btn-outline-primary" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'eliminar_cliente' cliente.id %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        {% else %}
+                            <span class="text-muted small">Solo lectura</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% else %}
-<div class="no-data">
-    <p>No hay clientes registrados aún.</p>
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+        <p class="text-muted mt-3">No hay clientes registrados aún.</p>
+        {% if rol == 'administrador' %}
+            <a href="{% url 'crear_cliente' %}" class="btn btn-primary mt-2">
+                <i class="bi bi-plus-lg"></i> Crear el primer cliente
+            </a>
+        {% endif %}
+    </div>
 </div>
 {% endif %}
 {% endblock %}

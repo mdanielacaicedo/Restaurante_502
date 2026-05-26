@@ -1,76 +1,128 @@
 {% extends 'gestion/base.html' %}
+{% load custom_filters %}
 
 {% block title %}Crear Orden - Restaurante Pasta La Vista{% endblock %}
 
 {% block content %}
-<h2>Crear Nueva Orden</h2>
+<div class="row mb-4">
+    <div class="col">
+        <h2>
+            <i class="bi bi-receipt"></i> Nueva Orden
+        </h2>
+    </div>
+</div>
 
-<div class="form-container">
-    <form method="POST" id="ordenForm">
-        {% csrf_token %}
-        
-        <div class="form-group">
-            <label for="cliente" class="required">Cliente</label>
-            <select id="cliente" name="cliente" required>
-                <option value="">-- Selecciona un cliente --</option>
-                {% for cliente in clientes %}
-                    <option value="{{ cliente.id }}">{{ cliente.nombre }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="empleado" class="required">Empleado</label>
-            <select id="empleado" name="empleado" required>
-                <option value="">-- Selecciona un empleado --</option>
-                {% for empleado in empleados %}
-                    <option value="{{ empleado.id }}">{{ empleado.nombre }} ({{ empleado.cargo }})</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="mesa" class="required">Mesa</label>
-            <select id="mesa" name="mesa" required>
-                <option value="">-- Selecciona una mesa --</option>
-                {% for mesa in mesas %}
-                    <option value="{{ mesa.id }}">Mesa {{ mesa.numero_mesa }} - Capacidad: {{ mesa.capacidad }} ({{ mesa.estado_mesa }})</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <hr style="margin: 30px 0; border: 1px solid var(--color-border);">
-
-        <h3 style="color: var(--color-primary); margin-bottom: 20px;">Platos de la Orden</h3>
-
-        <div id="platosContainer">
-            <div class="plato-item" style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; margin-bottom: 15px; align-items: end; padding: 15px; background: var(--color-light); border-radius: 6px;">
-                <div>
-                    <label for="plato_0" class="required">Selecciona un plato:</label>
-                    <select id="plato_0" name="platos[0][plato]" class="plato-select">
-                        <option value="">-- Selecciona --</option>
-                        {% for plato in platos %}
-                            <option value="{{ plato.id }}" data-precio="{{ plato.precio }}">{{ plato.nombre_plato }} - $ {{ plato.precio }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label for="cantidad_0" class="required">Cantidad:</label>
-                    <input type="number" id="cantidad_0" name="platos[0][cantidad]" min="1" value="1" style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px;">
-                </div>
-                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarPlato(this)">Eliminar</button>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST" id="ordenForm">
+                    {% csrf_token %}
+                    
+                    <!-- Datos básicos -->
+                    <div class="mb-4">
+                        <h5 class="mb-3"><i class="bi bi-info-circle"></i> Información de la Orden</h5>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="cliente" class="form-label">
+                                        <i class="bi bi-person"></i> Cliente <span class="text-danger">*</span>
+                                    </label>
+                                    <select id="cliente" name="cliente" class="form-select" required>
+                                        <option value="">-- Selecciona un cliente --</option>
+                                        {% for cliente in clientes %}
+                                            <option value="{{ cliente.id }}">{{ cliente.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="empleado" class="form-label">
+                                        <i class="bi bi-briefcase"></i> Empleado <span class="text-danger">*</span>
+                                    </label>
+                                    <select id="empleado" name="empleado" class="form-select" required>
+                                        <option value="">-- Selecciona un empleado --</option>
+                                        {% for empleado in empleados %}
+                                            <option value="{{ empleado.id }}">{{ empleado.nombre }} ({{ empleado.cargo }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="mesa" class="form-label">
+                                        <i class="bi bi-table"></i> Mesa <span class="text-danger">*</span>
+                                    </label>
+                                    <select id="mesa" name="mesa" class="form-select" required>
+                                        <option value="">-- Selecciona una mesa --</option>
+                                        {% for mesa in mesas %}
+                                            <option value="{{ mesa.id }}">Mesa {{ mesa.numero_mesa }} ({{ mesa.estado_mesa }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Platos -->
+                    <div class="mb-4">
+                        <h5 class="mb-3"><i class="bi bi-cup-hot"></i> Platos de la Orden</h5>
+                        
+                        <div id="platosContainer">
+                            <div class="plato-item mb-3 p-3 bg-light rounded">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <label for="plato_0" class="form-label">Plato</label>
+                                        <select id="plato_0" name="platos[0][plato]" class="form-select plato-select" required>
+                                            <option value="">-- Selecciona un plato --</option>
+                                            {% for plato in platos %}
+                                                <option value="{{ plato.id }}" data-precio="{{ plato.precio }}">
+                                                    {{ plato.nombre_plato }} - {{ plato.precio|precio_simple }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <label for="cantidad_0" class="form-label">Cantidad</label>
+                                        <input type="number" id="cantidad_0" name="platos[0][cantidad]" class="form-control" min="1" value="1" required>
+                                    </div>
+                                    
+                                    <div class="col-md-1 d-flex align-items-end">
+                                        <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="eliminarPlato(this)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="agregarPlato()">
+                            <i class="bi bi-plus-lg"></i> Agregar Plato
+                        </button>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Acciones -->
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Crear Orden
+                        </button>
+                        <a href="{% url 'lista_ordenes' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
-
-        <button type="button" class="btn btn-secondary" onclick="agregarPlato()" style="margin-bottom: 20px;">+ Agregar Plato</button>
-
-        <hr style="margin: 30px 0; border: 1px solid var(--color-border);">
-
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Crear Orden</button>
-            <a href="{% url 'lista_ordenes' %}" class="btn btn-light">Cancelar</a>
-        </div>
-    </form>
+    </div>
 </div>
 
 <script>
@@ -79,21 +131,31 @@ let platoCount = 1;
 function agregarPlato() {
     const container = document.getElementById('platosContainer');
     const html = `
-        <div class="plato-item" style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; margin-bottom: 15px; align-items: end; padding: 15px; background: var(--color-light); border-radius: 6px;">
-            <div>
-                <label for="plato_${platoCount}" class="required">Selecciona un plato:</label>
-                <select id="plato_${platoCount}" name="platos[${platoCount}][plato]" class="plato-select">
-                    <option value="">-- Selecciona --</option>
-                    {% for plato in platos %}
-                        <option value="{{ plato.id }}" data-precio="{{ plato.precio }}">{{ plato.nombre_plato }} - $ {{ plato.precio }}</option>
-                    {% endfor %}
-                </select>
+        <div class="plato-item mb-3 p-3 bg-light rounded">
+            <div class="row">
+                <div class="col-md-8">
+                    <label for="plato_${platoCount}" class="form-label">Plato</label>
+                    <select id="plato_${platoCount}" name="platos[${platoCount}][plato]" class="form-select plato-select" required>
+                        <option value="">-- Selecciona un plato --</option>
+                        {% for plato in platos %}
+                            <option value="{{ plato.id }}" data-precio="{{ plato.precio }}">
+                                {{ plato.nombre_plato }} - {{ plato.precio|precio_simple }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="cantidad_${platoCount}" class="form-label">Cantidad</label>
+                    <input type="number" id="cantidad_${platoCount}" name="platos[${platoCount}][cantidad]" class="form-control" min="1" value="1" required>
+                </div>
+                
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="eliminarPlato(this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
             </div>
-            <div>
-                <label for="cantidad_${platoCount}" class="required">Cantidad:</label>
-                <input type="number" id="cantidad_${platoCount}" name="platos[${platoCount}][cantidad]" min="1" value="1" style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px;">
-            </div>
-            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarPlato(this)">Eliminar</button>
         </div>
     `;
     container.insertAdjacentHTML('beforeend', html);
@@ -104,19 +166,4 @@ function eliminarPlato(button) {
     button.closest('.plato-item').remove();
 }
 </script>
-
-<style>
-    #platosContainer .plato-item select {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid var(--color-border);
-        border-radius: 4px;
-    }
-
-    #platosContainer .plato-item select:focus {
-        outline: none;
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
-    }
-</style>
 {% endblock %}

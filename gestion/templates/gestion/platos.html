@@ -1,53 +1,94 @@
 {% extends 'gestion/base.html' %}
+{% load custom_filters %}
 
 {% block title %}Platos - Restaurante Pasta La Vista{% endblock %}
 
 {% block content %}
-<h2>Gestión de Platos</h2>
-
-<div style="margin-bottom: 20px;">
-    <a href="{% url 'crear_plato' %}" class="btn btn-success">+ Crear Nuevo Plato</a>
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2><i class="bi bi-cup-hot"></i> Platos</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        {% if rol == 'administrador' %}
+            <a href="{% url 'crear_plato' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nuevo</a>
+        {% else %}
+            <span class="text-muted small">Solo administradores pueden crear platos</span>
+        {% endif %}
+    </div>
 </div>
 
-{% if platos %}
-<div class="table-container">
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Categoría</th>
-                <th>Precio</th>
-                <th>Disponibilidad</th>
-                <th style="text-align: center;">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for plato in platos %}
-            <tr>
-                <td>#{{ plato.id }}</td>
-                <td><strong>{{ plato.nombre_plato }}</strong></td>
-                <td>{{ plato.categoria|default:"N/A" }}</td>
-                <td>$ {{ plato.precio }}</td>
-                <td>
-                    {% if plato.disponible %}
-                        <span class="badge badge-success">Disponible</span>
-                    {% else %}
-                        <span class="badge badge-danger">No disponible</span>
-                    {% endif %}
-                </td>
-                <td class="actions">
-                    <a href="{% url 'editar_plato' plato.id %}" class="action-btn action-btn-edit">Editar</a>
-                    <a href="{% url 'eliminar_plato' plato.id %}" class="action-btn action-btn-delete">Eliminar</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="bg-primary text-white">
+                <tr>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;">
+                        <i class="bi bi-cup-hot"></i> Nombre
+                    </th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;">
+                        <i class="bi bi-tag"></i> Categoría
+                    </th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;">
+                        <i class="bi bi-cash"></i> Precio
+                    </th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;">
+                        Disponibilidad
+                    </th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;" class="text-end">
+                        Acciones
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for plato in platos %}
+                <tr>
+                    <td>
+                        <span class="badge bg-light text-dark" style="font-size: 0.8rem;">#{{ plato.id }}</span>
+                        <strong class="ms-2">{{ plato.nombre_plato }}</strong>
+                    </td>
+                    <td>
+                        <span class="text-muted">{{ plato.categoria|default:"N/A" }}</span>
+                    </td>
+                    <td>
+                        <strong class="text-success">{{ plato.precio|precio_simple }}</strong>
+                    </td>
+                    <td>
+                        {% if plato.disponible %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Disponible</span>
+                        {% else %}
+                            <span class="badge bg-danger"><i class="bi bi-x-circle"></i> No disponible</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if rol == 'administrador' %}
+                            <a href="{% url 'editar_plato' plato.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'eliminar_plato' plato.id %}" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        {% else %}
+                            <span class="text-muted small">Solo lectura</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if not platos %}
+    <div class="text-center py-5">
+        <div style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;">
+            <i class="bi bi-cup-hot"></i>
+        </div>
+        <p class="text-muted mb-3">No hay platos registrados aún</p>
+        {% if rol == 'administrador' %}
+            <a href="{% url 'crear_plato' %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg"></i> Agregar primer plato
+            </a>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
-{% else %}
-<div class="no-data">
-    <p>No hay platos registrados aún.</p>
-</div>
-{% endif %}
 {% endblock %}

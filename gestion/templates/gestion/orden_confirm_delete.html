@@ -1,30 +1,64 @@
 {% extends 'gestion/base.html' %}
+{% load custom_filters %}
 
 {% block title %}Eliminar Orden - Restaurante Pasta La Vista{% endblock %}
 
 {% block content %}
-<h2>Confirmar Eliminación de Orden</h2>
-
-<div class="form-container" style="max-width: 400px;">
-    <div class="alert alert-danger">
-        <strong>Advertencia:</strong> Esta acción no se puede deshacer. Se eliminarán todos los detalles de la orden.
+<div class="row mb-4">
+    <div class="col">
+        <h2>
+            <i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación
+        </h2>
     </div>
+</div>
 
-    <p>¿Estás seguro de que deseas eliminar la siguiente orden?</p>
-
-    <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-        <p><strong>Orden #:</strong> {{ orden.id }}</p>
-        <p><strong>Cliente:</strong> {{ orden.cliente.nombre }}</p>
-        <p><strong>Fecha:</strong> {{ orden.fecha_hora|date:"d/m/Y H:i" }}</p>
-        <p><strong>Total:</strong> $ {{ orden.total }}</p>
-    </div>
-
-    <form method="POST">
-        {% csrf_token %}
-        <div class="form-actions">
-            <button type="submit" class="btn btn-danger">Sí, Eliminar</button>
-            <a href="{% url 'lista_ordenes' %}" class="btn btn-light">Cancelar</a>
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <i class="bi bi-exclamation-circle"></i> Advertencia
+            </div>
+            <div class="card-body">
+                <p class="mb-3">
+                    ¿Estás seguro de que deseas eliminar esta orden? 
+                    <strong>Esta acción no se puede deshacer y se eliminarán todos los detalles.</strong>
+                </p>
+                
+                <div class="bg-light p-3 rounded mb-4">
+                    <h6 class="mb-3"><i class="bi bi-receipt"></i> Datos de la Orden</h6>
+                    <table class="table table-sm mb-0">
+                        <tr>
+                            <td class="fw-bold">Orden #:</td>
+                            <td><span class="badge bg-light text-dark">#{{ orden.id }}</span></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Cliente:</td>
+                            <td>{{ orden.cliente.nombre }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Fecha:</td>
+                            <td>{{ orden.fecha_hora|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Total:</td>
+                            <td><strong class="text-success">{{ orden.total|precio_simple }}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Sí, Eliminar
+                        </button>
+                        <a href="{% url 'lista_ordenes' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
 {% endblock %}

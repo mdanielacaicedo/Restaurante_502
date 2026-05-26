@@ -3,57 +3,315 @@
 {% block title %}Panel de Control - Restaurante Pasta La Vista{% endblock %}
 
 {% block content %}
-<h2>Panel Principal</h2>
-
-<div style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%); border-radius: 8px; color: white;">
-    <h3 style="color: white; margin-top: 0;">🎯 Acciones Rápidas</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
-        <a href="{% url 'crear_cliente' %}" class="btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 2px solid white; font-weight: 600;">+ Nuevo Cliente</a>
-        <a href="{% url 'crear_empleado' %}" class="btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 2px solid white; font-weight: 600;">+ Nuevo Empleado</a>
-        <a href="{% url 'crear_mesa' %}" class="btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 2px solid white; font-weight: 600;">+ Nueva Mesa</a>
-        <a href="{% url 'crear_plato' %}" class="btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 2px solid white; font-weight: 600;">+ Nuevo Plato</a>
-        <a href="{% url 'crear_orden' %}" class="btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 2px solid white; font-weight: 600;">+ Nueva Orden</a>
-        <a href="{% url 'crear_factura' %}" class="btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 2px solid white; font-weight: 600;">+ Nueva Factura</a>
+<!-- Bienvenida y Acciones Rapidas -->
+<div class="mb-5" style="background: linear-gradient(135deg, #722f37 0%, #5a2530 100%); border-radius: 12px; padding: 3rem; color: white;">
+    <div class="d-flex justify-content-between align-items-start">
+        <div>
+            <h2 class="mb-4" style="color: white; border: none;">
+                <i class="bi bi-speedometer2"></i> Panel de Control
+            </h2>
+            <p class="mb-4" style="font-size: 1.1rem; opacity: 0.95;">
+                Bienvenido <strong>{{ user.first_name|default:user.username }}</strong>. Aquí puedes gestionar tu restaurante.
+            </p>
+        </div>
+        <div class="text-end">
+            <span class="badge bg-light text-dark" style="font-size: 0.95rem; padding: 0.5rem 1rem;">
+                <i class="bi bi-person-badge"></i> Rol: <strong>{{ rol|upper }}</strong>
+            </span>
+        </div>
+    </div>
+    
+    <!-- Acciones rapidas segun rol -->
+    <div class="row g-2">
+        {% if rol == 'administrador' %}
+            <!-- Administrador: Acceso a todas las funciones -->
+            <div class="col-md-6 col-lg-2">
+                <a href="{% url 'crear_cliente' %}" class="btn btn-light w-100" style="font-weight: 600;">
+                    <i class="bi bi-person-plus"></i> Cliente
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-2">
+                <a href="{% url 'crear_empleado' %}" class="btn btn-light w-100" style="font-weight: 600;">
+                    <i class="bi bi-briefcase"></i> Empleado
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-2">
+                <a href="{% url 'crear_mesa' %}" class="btn btn-light w-100" style="font-weight: 600;">
+                    <i class="bi bi-table"></i> Mesa
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-2">
+                <a href="{% url 'crear_plato' %}" class="btn btn-light w-100" style="font-weight: 600;">
+                    <i class="bi bi-cup-hot"></i> Plato
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-2">
+                <a href="{% url 'crear_orden' %}" class="btn btn-light w-100" style="font-weight: 600;">
+                    <i class="bi bi-receipt"></i> Orden
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-2">
+                <a href="{% url 'crear_factura' %}" class="btn btn-light w-100" style="font-weight: 600;">
+                    <i class="bi bi-file-earmark-text"></i> Factura
+                </a>
+            </div>
+        {% elif rol == 'mesero' %}
+            <!-- Mesero: Solo ordenes y consulta -->
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'crear_orden' %}" class="btn btn-light w-100" style="font-weight: 600;">
+                    <i class="bi bi-plus-circle"></i> Nueva Orden
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'lista_ordenes' %}" class="btn btn-light w-100" style="font-weight: 600;">
+                    <i class="bi bi-list-check"></i> Mis Órdenes
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'lista_mesas' %}" class="btn btn-light w-100" style="font-weight: 600;">
+                    <i class="bi bi-table"></i> Mesas
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'lista_platos' %}" class="btn btn-light w-100" style="font-weight: 600;">
+                    <i class="bi bi-cup-hot"></i> Menú
+                </a>
+            </div>
+        {% elif rol == 'cajero' %}
+            <!-- Cajero: Facturacion y consulta -->
+            <div class="col-md-6 col-lg-4">
+                <a href="{% url 'lista_facturas' %}" class="btn btn-light w-100" style="font-weight: 600;">
+                    <i class="bi bi-file-earmark-text"></i> Facturas
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <a href="{% url 'lista_ordenes' %}" class="btn btn-light w-100" style="font-weight: 600;">
+                    <i class="bi bi-receipt"></i> Órdenes
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <a href="{% url 'crear_factura' %}" class="btn btn-light w-100" style="font-weight: 600;">
+                    <i class="bi bi-plus-circle"></i> Nueva Factura
+                </a>
+            </div>
+        {% endif %}
     </div>
 </div>
 
-<p style="color: var(--color-text-light); margin-bottom: 30px;">Resumen general del sistema de gestión</p>
+<!-- Estadisticas segun rol -->
+<h3 class="mb-4">
+    <i class="bi bi-graph-up"></i> {% if rol == 'administrador' %}Resumen General{% elif rol == 'mesero' %}Resumen de Operaciones{% elif rol == 'cajero' %}Resumen Financiero{% endif %}
+</h3>
 
-<div class="cards-grid">
-    <div class="card" onclick="location.href='/clientes/';" style="cursor: pointer;">
-        <h3>👥 Clientes</h3>
-        <p>{{ total_clientes }}</p>
-        <small>Clientes registrados</small>
-    </div>
+<div class="row mb-5">
+    {% if rol == 'administrador' %}
+        <!-- Administrador: Ve todas las estadisticas -->
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'lista_clientes' %}';" style="transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div style="width: 60px; height: 60px; background: rgba(114, 47, 55, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-people" style="font-size: 1.8rem; color: #722f37;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Clientes</h6>
+                            <h3 class="mb-0">{{ total_clientes }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="card" onclick="location.href='/empleados/';" style="cursor: pointer;">
-        <h3>👔 Empleados</h3>
-        <p>{{ total_empleados }}</p>
-        <small>Personal del restaurante</small>
-    </div>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'lista_empleados' %}';" style="transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div style="width: 60px; height: 60px; background: rgba(41, 128, 185, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-briefcase" style="font-size: 1.8rem; color: #2980b9;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Empleados</h6>
+                            <h3 class="mb-0">{{ total_empleados }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="card" onclick="location.href='/mesas/';" style="cursor: pointer;">
-        <h3>🪑 Mesas</h3>
-        <p>{{ total_mesas }}</p>
-        <small>Mesas disponibles</small>
-    </div>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'lista_mesas' %}';" style="transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div style="width: 60px; height: 60px; background: rgba(46, 204, 113, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-table" style="font-size: 1.8rem; color: #27ae60;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Mesas</h6>
+                            <h3 class="mb-0">{{ total_mesas }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="card" onclick="location.href='/platos/';" style="cursor: pointer;">
-        <h3>🍽️ Platos</h3>
-        <p>{{ total_platos }}</p>
-        <small>Items en el menú</small>
-    </div>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'lista_platos' %}';" style="transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div style="width: 60px; height: 60px; background: rgba(243, 156, 18, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-cup-hot" style="font-size: 1.8rem; color: #f39c12;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Platos</h6>
+                            <h3 class="mb-0">{{ total_platos }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="card" onclick="location.href='/ordenes/';" style="cursor: pointer;">
-        <h3>📋 Órdenes</h3>
-        <p>{{ total_ordenes }}</p>
-        <small>Órdenes generadas</small>
-    </div>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'lista_ordenes' %}';" style="transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div style="width: 60px; height: 60px; background: rgba(52, 152, 219, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-receipt" style="font-size: 1.8rem; color: #3498db;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Órdenes</h6>
+                            <h3 class="mb-0">{{ total_ordenes }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="card" onclick="location.href='/facturas/';" style="cursor: pointer;">
-        <h3>💰 Facturas</h3>
-        <p>{{ total_facturas }}</p>
-        <small>Facturas emitidas</small>
-    </div>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'lista_facturas' %}';" style="transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div style="width: 60px; height: 60px; background: rgba(155, 89, 182, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-file-earmark-text" style="font-size: 1.8rem; color: #8e44ad;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Facturas</h6>
+                            <h3 class="mb-0">{{ total_facturas }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    {% elif rol == 'mesero' %}
+        <!-- Mesero: Estadisticas de ordenes -->
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'lista_ordenes' %}';" style="transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div style="width: 60px; height: 60px; background: rgba(52, 152, 219, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-receipt" style="font-size: 1.8rem; color: #3498db;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Órdenes Creadas</h6>
+                            <h3 class="mb-0">{{ total_ordenes }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'lista_mesas' %}';" style="transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div style="width: 60px; height: 60px; background: rgba(46, 204, 113, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-table" style="font-size: 1.8rem; color: #27ae60;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Mesas Disponibles</h6>
+                            <h3 class="mb-0">{{ total_mesas }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'lista_platos' %}';" style="transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div style="width: 60px; height: 60px; background: rgba(243, 156, 18, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-cup-hot" style="font-size: 1.8rem; color: #f39c12;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Platos en Menú</h6>
+                            <h3 class="mb-0">{{ total_platos }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    {% elif rol == 'cajero' %}
+        <!-- CAJERO: Estadísticas financieras -->
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'lista_facturas' %}';" style="transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div style="width: 60px; height: 60px; background: rgba(155, 89, 182, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-file-earmark-text" style="font-size: 1.8rem; color: #8e44ad;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Facturas Activas</h6>
+                            <h3 class="mb-0">{{ total_facturas }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'lista_ordenes' %}';" style="transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div style="width: 60px; height: 60px; background: rgba(52, 152, 219, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-receipt" style="font-size: 1.8rem; color: #3498db;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Órdenes Pendientes</h6>
+                            <h3 class="mb-0">{{ total_ordenes }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm h-100" style="transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div style="width: 60px; height: 60px; background: rgba(46, 204, 113, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-cash-coin" style="font-size: 1.8rem; color: #27ae60;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Estado del Día</h6>
+                            <h3 class="mb-0 text-success">En Línea</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 </div>
+
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+    
+    .card:hover {
+        transform: translateY(-4px) !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+</style>
 {% endblock %}

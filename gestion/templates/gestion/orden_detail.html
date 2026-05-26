@@ -1,95 +1,189 @@
 {% extends 'gestion/base.html' %}
+{% load custom_filters %}
 
 {% block title %}Orden #{{ orden.id }} - Restaurante Pasta La Vista{% endblock %}
 
 {% block content %}
-<h2>Orden #{{ orden.id }}</h2>
-
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
-    <div style="background-color: var(--color-light); padding: 20px; border-radius: 8px;">
-        <h3>Información de la Orden</h3>
-        <p><strong>Cliente:</strong> {{ orden.cliente.nombre }}</p>
-        <p><strong>Empleado:</strong> {{ orden.empleado.nombre }}</p>
-        <p><strong>Mesa:</strong> {{ orden.mesa.numero_mesa }}</p>
-        <p><strong>Fecha:</strong> {{ orden.fecha_hora|date:"d/m/Y H:i" }}</p>
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2><i class="bi bi-receipt"></i> Orden #{{ orden.id }}</h2>
     </div>
+    <div class="col-md-4 text-end">
+        {% if orden.estado_orden != 'Facturada' and orden.estado_orden != 'Cancelada' %}
+            {% if not orden.factura %}
+                <a href="{% url 'facturar_orden' orden.id %}" class="btn btn-success">
+                    <i class="bi bi-credit-card"></i> Facturar
+                </a>
+            {% else %}
+                <span class="badge bg-info"><i class="bi bi-check-circle"></i> Facturada</span>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
 
-    <div style="background-color: var(--color-light); padding: 20px; border-radius: 8px;">
-        <h3>Estado y Total</h3>
-        <form method="POST" style="display: flex; flex-direction: column; gap: 15px;">
-            {% csrf_token %}
-            <div>
-                <label for="estado_orden">Estado:</label>
-                <select id="estado_orden" name="estado_orden" style="width: 100%; padding: 8px;">
-                    {% for value, label in estados %}
-                        <option value="{{ value }}" {% if orden.estado_orden == value %}selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
-                </select>
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h6 class="mb-0"><i class="bi bi-info-circle"></i> Información</h6>
             </div>
-            <button type="submit" class="btn btn-primary">Actualizar Estado</button>
-        </form>
-        <p style="margin-top: 15px;"><strong>Total:</strong> <span style="font-size: 1.5rem; color: var(--color-primary);">$ {{ orden.total }}</span></p>
+            <div class="card-body">
+                <table class="table table-sm mb-0">
+                    <tr>
+                        <td class="fw-bold">Cliente:</td>
+                        <td>{{ orden.cliente.nombre }}</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Empleado:</td>
+                        <td>{{ orden.empleado.nombre }}</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Mesa:</td>
+                        <td><i class="bi bi-table"></i> Mesa #{{ orden.mesa.numero_mesa }}</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Teléfono:</td>
+                        <td>{{ orden.cliente.telefono|default:"N/A" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Fecha:</td>
+                        <td>{{ orden.fecha_hora|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h6 class="mb-0"><i class="bi bi-cash"></i> Estado y Total</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="mb-3">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="estado_orden" class="form-label">Estado:</label>
+                        <select id="estado_orden" name="estado_orden" class="form-select" onchange="this.form.submit()">
+                            {% for value, label in estados %}
+                                <option value="{{ value }}" {% if orden.estado_orden == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+
+                <div style="background: linear-gradient(135deg, rgba(39, 174, 96, 0.1) 0%, rgba(46, 204, 113, 0.1) 100%); padding: 1.5rem; border-radius: 8px; border-left: 4px solid #27ae60;">
+                    <p class="text-muted small mb-2">Total a Pagar:</p>
+                    <h2 class="text-success mb-0" style="font-size: 2rem;">{{ orden.total|precio_simple }}</h2>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<h3>Detalles de la Orden</h3>
+<!-- Detalles de la Orden -->
+<h4 class="mb-3"><i class="bi bi-cup-hot"></i> Detalles</h4>
 
-{% if detalles %}
-<div class="table-container" style="margin-bottom: 20px;">
-    <table>
-        <thead>
-            <tr>
-                <th>Plato</th>
-                <th>Cantidad</th>
-                <th>Precio Unitario</th>
-                <th>Subtotal</th>
-                <th style="text-align: center;">Acción</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for detalle in detalles %}
-            <tr>
-                <td>{{ detalle.plato.nombre_plato }}</td>
-                <td>{{ detalle.cantidad }}</td>
-                <td>$ {{ detalle.precio_unitario }}</td>
-                <td><strong>$ {{ detalle.subtotal }}</strong></td>
-                <td class="actions">
-                    <a href="{% url 'eliminar_detalle_orden' detalle.id %}" class="action-btn action-btn-delete">Eliminar</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="card mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th style="text-transform: uppercase; font-size: 0.85rem;"><i class="bi bi-cup-hot"></i> Plato</th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem; text-align: center;">Cantidad</th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem; text-align: right;">Precio Unit.</th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem; text-align: right;">Subtotal</th>
+                    <th style="text-transform: uppercase; font-size: 0.85rem; text-align: center;">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if detalles %}
+                    {% for detalle in detalles %}
+                    <tr>
+                        <td>
+                            <strong>{{ detalle.plato.nombre_plato }}</strong>
+                            <br>
+                            <small class="text-muted">{{ detalle.plato.categoria|default:"" }}</small>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-primary">{{ detalle.cantidad }}</span>
+                        </td>
+                        <td class="text-end">{{ detalle.precio_unitario|precio_simple }}</td>
+                        <td class="text-end">
+                            <strong class="text-success">{{ detalle.subtotal|precio_simple }}</strong>
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'eliminar_detalle_orden' detalle.id %}" class="btn btn-sm btn-outline-danger" title="Eliminar plato">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="border-top border-bottom fw-bold" style="background-color: #f8f9fa;">
+                        <td colspan="3" class="text-end">Total:</td>
+                        <td class="text-end">{{ orden.total|precio_simple }}</td>
+                        <td></td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;">
+                                <i class="bi bi-inbox"></i>
+                            </div>
+                            <p class="text-muted">No hay platos en esta orden. Agrega al menos uno.</p>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
 </div>
-{% else %}
-<div class="no-data">
-    <p>No hay platos en esta orden aún.</p>
-</div>
-{% endif %}
 
-<div style="margin-top: 30px; padding: 20px; background-color: var(--color-light); border-radius: 8px;">
-    <h3>Agregar Plato a la Orden</h3>
-    <form method="POST" action="{% url 'agregar_detalle_orden' orden.id %}" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end;">
-        {% csrf_token %}
-        <div>
-            <label for="plato">Selecciona un plato:</label>
-            <select id="plato" name="plato" required style="width: 100%; padding: 8px;">
-                <option value="">-- Selecciona --</option>
-                {% for plato in platos %}
-                    <option value="{{ plato.id }}">{{ plato.nombre_plato }} - $ {{ plato.precio }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div>
-            <label for="cantidad">Cantidad:</label>
-            <input type="number" id="cantidad" name="cantidad" value="1" required min="1" style="width: 100%; padding: 8px;">
-        </div>
-        <button type="submit" class="btn btn-success">Agregar</button>
-    </form>
+<!-- Agregar Plato -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h6 class="mb-0"><i class="bi bi-plus-circle"></i> Agregar Plato</h6>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{% url 'agregar_detalle_orden' orden.id %}">
+            {% csrf_token %}
+            <div class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label for="plato" class="form-label">Plato</label>
+                    <select id="plato" name="plato" class="form-select" required>
+                        <option value="">-- Selecciona un plato --</option>
+                        {% for plato in platos %}
+                            <option value="{{ plato.id }}">
+                                {{ plato.nombre_plato }} - {{ plato.precio|precio_simple }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="cantidad" class="form-label">Cantidad</label>
+                    <input type="number" id="cantidad" name="cantidad" value="1" required min="1" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-plus-lg"></i> Agregar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
-<div style="margin-top: 20px; display: flex; gap: 10px;">
-    <a href="{% url 'lista_ordenes' %}" class="btn btn-light">Volver a Órdenes</a>
-    <a href="{% url 'crear_factura' %}" class="btn btn-success">Crear Factura</a>
+<!-- Acciones -->
+<div class="d-flex gap-2">
+    <a href="{% url 'lista_ordenes' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
+    {% if detalles and orden.estado_orden != 'Facturada' and orden.estado_orden != 'Cancelada' %}
+        {% if not orden.factura %}
+            <a href="{% url 'facturar_orden' orden.id %}" class="btn btn-success">
+                <i class="bi bi-credit-card"></i> Facturar Orden
+            </a>
+        {% endif %}
+    {% endif %}
 </div>
 {% endblock %}

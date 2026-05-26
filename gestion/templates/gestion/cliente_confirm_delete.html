@@ -3,27 +3,57 @@
 {% block title %}Eliminar Cliente - Restaurante Pasta La Vista{% endblock %}
 
 {% block content %}
-<h2>Confirmar Eliminación</h2>
-
-<div class="form-container" style="max-width: 400px;">
-    <div class="alert alert-danger">
-        <strong>Advertencia:</strong> Esta acción no se puede deshacer.
+<div class="row mb-4">
+    <div class="col">
+        <h2>
+            <i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación
+        </h2>
     </div>
+</div>
 
-    <p>¿Estás seguro de que deseas eliminar el siguiente cliente?</p>
-
-    <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-        <p><strong>Nombre:</strong> {{ cliente.nombre }}</p>
-        <p><strong>Teléfono:</strong> {{ cliente.telefono|default:"N/A" }}</p>
-        <p><strong>Correo:</strong> {{ cliente.correo|default:"N/A" }}</p>
-    </div>
-
-    <form method="POST">
-        {% csrf_token %}
-        <div class="form-actions">
-            <button type="submit" class="btn btn-danger">Sí, Eliminar</button>
-            <a href="{% url 'lista_clientes' %}" class="btn btn-light">Cancelar</a>
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <i class="bi bi-exclamation-circle"></i> Advertencia
+            </div>
+            <div class="card-body">
+                <p class="mb-3">
+                    ¿Estás seguro de que deseas eliminar este cliente? 
+                    <strong>Esta acción no se puede deshacer.</strong>
+                </p>
+                
+                <div class="bg-light p-3 rounded mb-4">
+                    <h6 class="mb-3"><i class="bi bi-person"></i> Datos del Cliente</h6>
+                    <table class="table table-sm mb-0">
+                        <tr>
+                            <td class="fw-bold">Nombre:</td>
+                            <td>{{ cliente.nombre }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Teléfono:</td>
+                            <td>{{ cliente.telefono|default:"N/A" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Correo:</td>
+                            <td>{{ cliente.correo|default:"N/A" }}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Sí, Eliminar
+                        </button>
+                        <a href="{% url 'lista_clientes' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
 {% endblock %}

@@ -3,45 +3,112 @@
 {% block title %}{% if empleado %}Editar{% else %}Crear{% endif %} Empleado - Restaurante Pasta La Vista{% endblock %}
 
 {% block content %}
-<h2>{% if empleado %}Editar Empleado{% else %}Crear Nuevo Empleado{% endif %}</h2>
+<div class="row mb-4">
+    <div class="col">
+        <h2>
+            <i class="bi bi-briefcase"></i>
+            {% if empleado %}Editar Empleado{% else %}Nuevo Empleado{% endif %}
+        </h2>
+    </div>
+</div>
 
-<div class="form-container">
-    <form method="POST">
-        {% csrf_token %}
-        
-        <div class="form-group">
-            <label for="nombre" class="required">Nombre</label>
-            <input type="text" id="nombre" name="nombre" value="{{ empleado.nombre|default:'' }}" required placeholder="Nombre del empleado">
-        </div>
-
-        <div class="form-group">
-            <label for="cargo" class="required">Cargo</label>
-            <select id="cargo" name="cargo" required>
-                <option value="">-- Selecciona un cargo --</option>
-                {% for value, label in cargos %}
-                    <option value="{{ value }}" {% if empleado.cargo == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label for="telefono">Teléfono</label>
-                <input type="tel" id="telefono" name="telefono" value="{{ empleado.telefono|default:'' }}" placeholder="Teléfono">
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">
+                            <i class="bi bi-person-fill"></i> Nombre <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="nombre" 
+                            name="nombre" 
+                            class="form-control" 
+                            value="{{ empleado.nombre|default:'' }}" 
+                            placeholder="Nombre del empleado"
+                            pattern="[a-zA-ZáéíóúàèìòùäëïöüÁÉÍÓÚÀÈÌÒÙÄËÏÖÜ\s\-']+"
+                            title="Solo se permiten letras, espacios y guiones"
+                            required
+                        >
+                        <small class="text-muted">Solo letras, espacios y guiones</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="cargo" class="form-label">
+                            <i class="bi bi-briefcase-fill"></i> Cargo <span class="text-danger">*</span>
+                        </label>
+                        <select id="cargo" name="cargo" class="form-select" required>
+                            <option value="">-- Selecciona un cargo --</option>
+                            {% for value, label in cargos %}
+                                <option value="{{ value }}" {% if empleado.cargo == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">
+                            <i class="bi bi-telephone-fill"></i> Teléfono
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="telefono" 
+                            name="telefono" 
+                            class="form-control" 
+                            value="{{ empleado.telefono|default:'' }}" 
+                            placeholder="Teléfono del empleado"
+                            pattern="[0-9]{7,}"
+                            title="Solo números, mínimo 7 dígitos"
+                        >
+                        <small class="text-muted">Solo números (mínimo 7 dígitos)</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="correo" class="form-label">
+                            <i class="bi bi-envelope-fill"></i> Correo Electrónico
+                        </label>
+                        <input 
+                            type="email" 
+                            id="correo" 
+                            name="correo" 
+                            class="form-control" 
+                            value="{{ empleado.correo|default:'' }}" 
+                            placeholder="correo@ejemplo.com"
+                        >
+                    </div>
+                    
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i>
+                            {% if empleado %}Actualizar{% else %}Crear{% endif %}
+                        </button>
+                        <a href="{% url 'lista_empleados' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
             </div>
-
-            <div class="form-group">
-                <label for="correo">Correo Electrónico</label>
-                <input type="email" id="correo" name="correo" value="{{ empleado.correo|default:'' }}" placeholder="correo@ejemplo.com">
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h6 class="card-title mb-3">
+                    <i class="bi bi-info-circle"></i> Información
+                </h6>
+                <ul class="list-unstyled small text-muted">
+                    <li><i class="bi bi-check"></i> Nombre y cargo son obligatorios</li>
+                    <li><i class="bi bi-check"></i> Contacto es opcional</li>
+                    <li><i class="bi bi-check"></i> Válida automáticamente</li>
+                </ul>
             </div>
         </div>
-
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">
-                {% if empleado %}Actualizar{% else %}Crear{% endif %} Empleado
-            </button>
-            <a href="{% url 'lista_empleados' %}" class="btn btn-light">Cancelar</a>
-        </div>
-    </form>
+    </div>
 </div>
 {% endblock %}

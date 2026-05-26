@@ -1,4 +1,5 @@
 {% extends 'gestion/base.html' %}
+{% load custom_filters %}
 
 {% block title %}Crear Factura - Restaurante Pasta La Vista{% endblock %}
 
@@ -15,7 +16,7 @@
                 <option value="">-- Selecciona una orden --</option>
                 {% for orden in ordenes %}
                     <option value="{{ orden.id }}">
-                        Orden #{{ orden.id }} - Cliente: {{ orden.cliente.nombre }} - Total: $ {{ orden.total }}
+                        Orden #{{ orden.id }} - Cliente: {{ orden.cliente.nombre }} - Total: {{ orden.total|precio_simple }}
                     </option>
                 {% endfor %}
             </select>
